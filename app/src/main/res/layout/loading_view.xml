@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2017.
+  ~
+  ~     "Therefore those skilled at the unorthodox
+  ~      are infinite as heaven and earth,
+  ~      inexhaustible as the great rivers.
+  ~      When they come to an end,
+  ~      they begin again,
+  ~      like the days and months;
+  ~      they die and are reborn,
+  ~      like the four seasons."
+  ~
+  ~ - Sun Tsu, "The Art of War"
+  ~
+  ~ Enes Gemci
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <!--<com.enesgemci.mamasandpapas.core.widgets.loading.MLoadingIndicatorView-->
+    <!--android:layout_width="75dp"-->
+    <!--android:layout_height="75dp"-->
+    <!--app:indicator_color="@color/mateli_blue" />-->
+
+    <com.enesgemci.mamasandpapas.widget.MLoadingView
+        android:id="@+id/layoutProgressable_ivProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+</LinearLayout>

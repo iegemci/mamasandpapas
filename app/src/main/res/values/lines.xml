@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2015.
+  ~
+  ~ Enes Gemci
+  -->
+
+<resources>
+
+    <style name="Line">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="Line.Vertical">
+        <item name="android:layout_width">@dimen/line_thickness</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="Line.Vertical.Dark">
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="Line.Vertical.Light">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="Line.Vertical.Gray">
+        <item name="android:background">@color/gray_2</item>
+    </style>
+
+    <style name="Line.Vertical.LightGray">
+        <item name="android:background">@color/text_color_light</item>
+    </style>
+
+    <style name="Line.Vertical.DarkGray">
+        <item name="android:background">@color/gray_1</item>
+    </style>
+
+
+    <style name="Line.Vertical.Blue">
+        <item name="android:background">@color/light_blue</item>
+    </style>
+
+    <style name="Line.Vertical.Green">
+        <item name="android:background">@color/green</item>
+    </style>
+
+    <style name="Line.Vertical.Red">
+        <item name="android:background">@color/red</item>
+    </style>
+
+    <style name="Line.Horizantal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/line_thickness</item>
+    </style>
+
+    <style name="Line.Horizantal.Dark">
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="Line.Horizantal.Light">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="Line.Horizantal.Gray">
+        <item name="android:background">@color/gray_2</item>
+    </style>
+
+    <style name="Line.Horizantal.LightGray">
+        <item name="android:background">@color/text_color_light</item>
+    </style>
+
+    <style name="Line.Horizantal.DarkGray">
+        <item name="android:background">@color/gray_1</item>
+    </style>
+
+    <style name="Line.Horizantal.Green">
+        <item name="android:background">@color/green</item>
+    </style>
+
+    <style name="Line.Horizantal.Red">
+        <item name="android:background">@color/red</item>
+    </style>
+
+    <style name="Line.Horizantal.Blue">
+        <item name="android:background">@color/light_blue</item>
+    </style>
+
+</resources>

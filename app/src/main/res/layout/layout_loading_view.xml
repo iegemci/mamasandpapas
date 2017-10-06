@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2017.
+  ~
+  ~     "Therefore those skilled at the unorthodox
+  ~      are infinite as heaven and earth,
+  ~      inexhaustible as the great rivers.
+  ~      When they come to an end,
+  ~      they begin again,
+  ~      like the days and months;
+  ~      they die and are reborn,
+  ~      like the four seasons."
+  ~
+  ~ - Sun Tsu, "The Art of War"
+  ~
+  ~ Enes Gemci
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="#00000000"
+    android:foregroundGravity="center">
+
+    <ImageView
+        android:id="@+id/loading_ivIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:src="@drawable/ic_loader_symbol" />
+
+    <ImageView
+        android:id="@+id/loading_ivOuterCircle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:src="@drawable/ic_loader_circle" />
+
+    <ImageView
+        android:id="@+id/loading_ivThinCircle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:src="@drawable/ic_loader_outer_circle" />
+
+    <ImageView
+        android:id="@+id/loading_ivThinCircleSecond"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="20dp"
+        android:scaleX="0.3"
+        android:scaleY="0.3"
+        android:src="@drawable/ic_loader_outer_circle" />
+
+</FrameLayout>

@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Screen">
+        <item name="android:layout_width">@dimen/tablet_screen_width</item>
+    </style>
+
+</resources>
