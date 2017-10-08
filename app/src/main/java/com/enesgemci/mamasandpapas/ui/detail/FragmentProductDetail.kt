@@ -5,6 +5,7 @@ import android.os.Parcelable
 import com.enesgemci.mamasandpapas.R
 import com.enesgemci.mamasandpapas.base.BaseFragment
 import com.enesgemci.mamasandpapas.dagger.component.FragmentComponent
+import com.enesgemci.mamasandpapas.data.ProductModel
 import com.enesgemci.mamasandpapas.util.fragment.Page
 import javax.inject.Inject
 
@@ -16,12 +17,14 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
     @Inject
     lateinit var mPresenter: FragmentProductDetailPresenter
 
+    private var product: ProductModel? = null
+
     override fun createPresenter(): FragmentProductDetailPresenter {
         return mPresenter
     }
 
     override fun onFragmentStarted() {
-
+        arguments?.let { product = arguments.getParcelable(PRODUCT) }
     }
 
     override fun getPage(): Page {
@@ -37,6 +40,8 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
     }
 
     companion object {
+
+        private val PRODUCT = "PRODUCT"
 
         fun newInstance(vararg objects: Any?): FragmentProductDetail {
             val args = Bundle()

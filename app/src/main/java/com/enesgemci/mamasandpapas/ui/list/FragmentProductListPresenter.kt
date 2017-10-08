@@ -17,11 +17,7 @@ internal class FragmentProductListPresenter @Inject constructor() : BaseMvpPrese
     @Inject
     lateinit var requestGenerator: MRequestGenerator
 
-    private var page = 0
-
-    fun refresh() {
-        view.sendRequest(requestGenerator.getProductListRequest(view.searchString, page = ++page))
-    }
+    var page = 0
 
     @Subscribe
     fun onResponse(response: ProductListResponse) {
@@ -33,5 +29,9 @@ internal class FragmentProductListPresenter @Inject constructor() : BaseMvpPrese
 
     fun onItemClicked(position: Int) {
         view.showPage(Page.PAGE_PRODUCT_DETAIL, response!!.products!![position])
+    }
+
+    fun loadMore() {
+        view.sendRequest(requestGenerator.getProductListRequest(view.searchString, page = ++page).setBehind(true))
     }
 }

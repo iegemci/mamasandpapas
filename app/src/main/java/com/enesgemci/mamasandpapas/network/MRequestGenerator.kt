@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Singleton
 internal class MRequestGenerator @Inject constructor(private var restService: MRestService) {
 
-    fun getProductListRequest(searchString: String = "", page: Int = 1, hitsPerPage: Int = 5): MRequest<*> {
+    fun getProductListRequest(searchString: String = "", page: Int = 1, hitsPerPage: Int = 10): MRequest<*> {
         val call = restService.getProductListResponse(searchString, page, hitsPerPage)
         return MRequest(call, ServiceConstant.ProductList)
     }

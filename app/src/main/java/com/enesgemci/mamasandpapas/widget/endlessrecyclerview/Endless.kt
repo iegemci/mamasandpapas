@@ -46,7 +46,7 @@ class Endless private constructor(val recyclerView: RecyclerView, private val lo
     }
 
 
-    fun setAdapter(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>?) {
+    fun <T : RecyclerView.Adapter<RecyclerView.ViewHolder>> setAdapter(adapter: T?) {
         if (adapter == null) {
             return
         }

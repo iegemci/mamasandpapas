@@ -19,7 +19,7 @@ data class ProductModel(var productId: Int?,
                         var slug: String?,
                         var brand: String?,
                         var age: List<String?>?,
-                        var middleEastExclusive: Any?,
+                        var middleEastExclusive: Boolean = false,
                         var image: String?,
                         var smallImage: String?,
                         var thumbnail: String?,
@@ -115,7 +115,7 @@ data class ProductModel(var productId: Int?,
             source.readString(),
             source.readString(),
             ArrayList<String?>().apply { source.readList(this, String::class.java.classLoader) },
-            source.readAny(),
+            1 == source.readInt(),
             source.readString(),
             source.readString(),
             source.readString(),
@@ -124,10 +124,10 @@ data class ProductModel(var productId: Int?,
             source.readString(),
             source.readString(),
             source.readString(),
-            source.readAny(),
-            source.readAny(),
+            source.readValue(Any::class.java.classLoader) as Any,
+            source.readValue(Any::class.java.classLoader) as Any,
             source.readString(),
-            source.readAny(),
+            source.readValue(Any::class.java.classLoader) as Any,
             source.readValue(Double::class.java.classLoader) as Double?,
             source.readLong(),
             source.readSerializable() as DateTime?,
@@ -170,12 +170,12 @@ data class ProductModel(var productId: Int?,
             source.readString(),
             source.readString(),
             source.readValue(Int::class.java.classLoader) as Int?,
-            source.readAnalyticsModel(),
+            source.readParcelable<AnalyticsModel>(AnalyticsModel::class.java.classLoader),
             ArrayList<Int>().apply { source.readList(this, Int::class.java.classLoader) },
             source.createStringArrayList(),
-            ArrayList<MediaModel?>().apply { source.readList(this, MediaModel::class.java.classLoader) },
+            source.createTypedArrayList(MediaModel.CREATOR),
             source.readValue(Int::class.java.classLoader) as Int?,
-            source.readStockModel(),
+            source.readParcelable<StockModel>(StockModel::class.java.classLoader),
             1 == source.readInt(),
             1 == source.readInt(),
             1 == source.readInt(),
@@ -189,7 +189,7 @@ data class ProductModel(var productId: Int?,
             source.readString(),
             source.createStringArrayList(),
             1 == source.readInt(),
-            source.readStockOfAllOptionsModel(),
+            source.readParcelable<StockOfAllOptionsModel>(StockOfAllOptionsModel::class.java.classLoader),
             source.readString(),
             source.readString(),
             source.readString(),
@@ -198,15 +198,15 @@ data class ProductModel(var productId: Int?,
             source.createStringArrayList(),
             ArrayList<String?>().apply { source.readList(this, String::class.java.classLoader) },
             source.readString(),
-            source.readStatsModel(),
-            source.readMutableMap<String?, Long>()
+            source.readParcelable<StatsModel>(StatsModel::class.java.classLoader),
+            source.readSerializable() as MutableMap<String?, Long>
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeValue(productId)
-        writeMutableMap<String?, Long>(categoryPositions)
+        writeSerializable(categoryPositions)
         writeString(sku)
         writeString(createdAt)
         writeString(typeId)
@@ -214,7 +214,7 @@ data class ProductModel(var productId: Int?,
         writeString(slug)
         writeString(brand)
         writeList(age)
-        writeAny(middleEastExclusive)
+        writeInt((if (middleEastExclusive) 1 else 0))
         writeString(image)
         writeString(smallImage)
         writeString(thumbnail)
@@ -223,10 +223,10 @@ data class ProductModel(var productId: Int?,
         writeString(giftMessageAvailable)
         writeString(giftWrappingAvailable)
         writeString(department)
-        writeAny(addToBag)
-        writeAny(get30Off)
+        writeValue(addToBag)
+        writeValue(get30Off)
         writeString(description)
-        writeAny(userManual)
+        writeValue(userManual)
         writeValue(price)
         writeLong(specialPrice)
         writeSerializable(specialFromDate)
@@ -269,12 +269,12 @@ data class ProductModel(var productId: Int?,
         writeString(parentSku)
         writeString(styleColorId)
         writeValue(ranged)
-        writeAnalyticsModel(analytics)
+        writeParcelable(analytics, 0)
         writeList(categoryIds)
         writeStringList(categories)
-        writeList(media)
+        writeTypedList(media)
         writeValue(minPrice)
-        writeStockModel(stock)
+        writeParcelable(stock, 0)
         writeInt((if (isInStock) 1 else 0))
         writeInt((if (isInHomeDeliveryStock) 1 else 0))
         writeInt((if (isInClickAndCollectStock) 1 else 0))
@@ -288,7 +288,7 @@ data class ProductModel(var productId: Int?,
         writeString(simpleType)
         writeStringList(sameColorSiblings)
         writeInt((if (isAreAnyOptionsInStock) 1 else 0))
-        writeStockOfAllOptionsModel(stockOfAllOptions)
+        writeParcelable(stockOfAllOptions, 0)
         writeString(isClearanceFacet)
         writeString(isInStockFacet)
         writeString(areAnyOptionsInStockFacet)
@@ -297,13 +297,12 @@ data class ProductModel(var productId: Int?,
         writeStringList(sizesInHomeDeliveryStock)
         writeList(sizesInClickAndCollectStock)
         writeString(visibleSku)
-        writeStatsModel(stats)
-        writeMutableMap<String?, Long>(badges)
+        writeParcelable(stats, 0)
+        writeValue(badges)
     }
 
     companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<ProductModel> = object : Parcelable.Creator<ProductModel> {
+        @JvmField val CREATOR: Parcelable.Creator<ProductModel> = object : Parcelable.Creator<ProductModel> {
             override fun createFromParcel(source: Parcel): ProductModel = ProductModel(source)
             override fun newArray(size: Int): Array<ProductModel?> = arrayOfNulls(size)
         }

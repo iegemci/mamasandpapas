@@ -20,9 +20,19 @@ import com.enesgemci.mamasandpapas.util.MDrawable
 /**
  * Created by enesgemci on 06/10/2017.
  */
-internal class AdapterProductList(private var context: Context, private var productList: List<ProductModel?>, var onClickListener: View.OnClickListener) : RecyclerView.Adapter<AdapterProductList.ViewHolder>() {
+internal class AdapterProductList(private var context: Context, var onClickListener: View.OnClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private var productList: ArrayList<ProductModel?> = ArrayList()
+
+    fun loadData(list: ArrayList<ProductModel>?, addAll: Boolean = true) {
+        if (!addAll) {
+            productList.clear()
+        }
+
+        list?.let { productList.addAll(list) }
+        notifyDataSetChanged()
+    }
 
     override fun getItemCount(): Int {
         return productList.size
@@ -32,8 +42,8 @@ internal class AdapterProductList(private var context: Context, private var prod
         return ViewHolder(layoutInflater.inflate(R.layout.layout_product_item, null))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        holder?.setData(productList[position], position)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+        (holder as ViewHolder)?.setData(productList[position], position)
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
