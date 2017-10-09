@@ -125,6 +125,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:${GLIDE_VERSION}"
 
     implementation "com.jakewharton.timber:timber:4.5.1"
+    implementation 'com.github.yasevich:endless-recycler-view:1.1.0'
     //    ------------------------------------------------------------------------------------------
 
     //    ------------------------------ TEST ------------------------------------------------------

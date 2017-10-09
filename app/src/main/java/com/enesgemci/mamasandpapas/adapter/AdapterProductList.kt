@@ -23,14 +23,10 @@ import com.enesgemci.mamasandpapas.util.MDrawable
 internal class AdapterProductList(private var context: Context, var onClickListener: View.OnClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private var productList: ArrayList<ProductModel?> = ArrayList()
+    var productList: ArrayList<ProductModel?> = ArrayList()
 
-    fun loadData(list: ArrayList<ProductModel>?, addAll: Boolean = true) {
-        if (!addAll) {
-            productList.clear()
-        }
-
-        list?.let { productList.addAll(list) }
+    fun loadData(list: ArrayList<ProductModel>?) {
+        list?.let { productList.addAll(list) } ?: productList.clear()
         notifyDataSetChanged()
     }
 
@@ -43,7 +39,7 @@ internal class AdapterProductList(private var context: Context, var onClickListe
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
-        (holder as ViewHolder)?.setData(productList[position], position)
+        (holder as ViewHolder)?.setData(productList[position])
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -54,8 +50,8 @@ internal class AdapterProductList(private var context: Context, var onClickListe
         private val desc: TextView = view.findViewById(R.id.product_description)
         private val price: TextView = view.findViewById(R.id.product_price)
 
-        fun setData(product: ProductModel?, position: Int) {
-            root.tag = position
+        fun setData(product: ProductModel?) {
+            root.tag = product
             root.setOnClickListener { onClickListener.onClick(root) }
             root.background = MDrawable.Builder(context)
                     .setBackgroundColorResId(R.color.white)
@@ -67,7 +63,8 @@ internal class AdapterProductList(private var context: Context, var onClickListe
                 GlideApp.with(context)
                         .asDrawable()
                         .placeholder(R.drawable.bg_placeholder)
-                        .load(BuildConfig.HOST_IMAGE + product.image)
+                        .load(BuildConfig.HOST_IMAGE + (product.smallImage ?: (product.thumbnail ?: product.image)))
+                        .timeout(30000)
                         .into(image)
             }
 

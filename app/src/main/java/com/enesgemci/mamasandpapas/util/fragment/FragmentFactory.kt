@@ -6,6 +6,7 @@
 
 package com.enesgemci.mamasandpapas.util.fragment
 
+import com.enesgemci.mamasandpapas.ui.detail.FragmentProductDetail
 import com.enesgemci.mamasandpapas.ui.list.FragmentProductList
 
 /**
@@ -17,8 +18,8 @@ internal object FragmentFactory {
         Page.PAGE_PRODUCT_LIST ->
             FragmentBuilder().setFragment(FragmentProductList.newInstance(*obj))
                     .setTransactionAnimation(TransactionAnimation.NO_ANIM)
-        else -> {
-            null
-        }
+        Page.PAGE_PRODUCT_DETAIL ->
+            FragmentBuilder().setFragment(FragmentProductDetail.newInstance(*obj))
+                    .setAddToBackStack(true)
     }
 }

@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
@@ -14,29 +12,40 @@ import com.enesgemci.mamasandpapas.adapter.AdapterProductList
 import com.enesgemci.mamasandpapas.base.BaseFragment
 import com.enesgemci.mamasandpapas.dagger.component.FragmentComponent
 import com.enesgemci.mamasandpapas.data.ProductListResponse
+import com.enesgemci.mamasandpapas.data.ProductModel
 import com.enesgemci.mamasandpapas.util.fragment.Page
-import com.enesgemci.mamasandpapas.widgets.endlessrecyclerview.Endless
+import com.github.yasevich.endlessrecyclerview.EndlessRecyclerView
 import kotlinx.android.synthetic.main.fragment_product_list.*
-import timber.log.Timber
 import javax.inject.Inject
 
 
 /**
  * Created by enesgemci on 06/10/2017.
  */
-internal class FragmentProductList : BaseFragment<FragmentProductListView, FragmentProductListPresenter>(), FragmentProductListView {
-
-    override val searchString: String
-        get() = searchEditText.text.toString()
-
-    val ITEM_PER_PAGE = 10
+internal class FragmentProductList : BaseFragment<FragmentProductListView, FragmentProductListPresenter>(), FragmentProductListView, EndlessRecyclerView.Pager {
 
     @Inject
     lateinit var mPresenter: FragmentProductListPresenter
 
-    private var adapter: AdapterProductList? = null
-    private var endless: Endless? = null
-    private var addAll: Boolean = true
+    private val adapter: AdapterProductList by lazy {
+        AdapterProductList(context, View.OnClickListener { v ->
+            loading = false
+            swipeRefreshView.isRefreshing = false
+
+            var product = v.tag as ProductModel
+            selectedPosition = adapter.productList.indexOf(product)
+            presenter.onItemClicked(product)
+        })
+    }
+
+    private var selectedPosition = 0
+    private var clear: Boolean = false
+    private var loading: Boolean = false
+        set(value) {
+            field = value
+            productsRecyclerView.isRefreshing = value
+        }
+    private var response: ProductListResponse? = null
 
     override fun getPage(): Page {
         return Page.PAGE_PRODUCT_LIST
@@ -47,12 +56,18 @@ internal class FragmentProductList : BaseFragment<FragmentProductListView, Fragm
     }
 
     override fun onFragmentStarted() {
-        val layoutManager: RecyclerView.LayoutManager
+        swipeRefreshView.setOnRefreshListener {
+            swipeRefreshView.isRefreshing = true
+            presenter.page = 0
+            adapter?.loadData(null)
+            clear = true
+            presenter.loadMore()
+        }
 
-        if (isTablet()) {
-            layoutManager = GridLayoutManager(context, 2)
+        val layoutManager: RecyclerView.LayoutManager = if (isTablet()) {
+            GridLayoutManager(context, 2)
         } else {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         }
 
         productsRecyclerView.layoutManager = layoutManager
@@ -62,42 +77,49 @@ internal class FragmentProductList : BaseFragment<FragmentProductListView, Fragm
         val layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         progressBar.layoutParams = layoutParams
 
-        this.adapter = AdapterProductList(context, View.OnClickListener { v ->
-            presenter.onItemClicked(v.tag as Int)
-        })
+        productsRecyclerView.setProgressView(progressBar)
+        productsRecyclerView.adapter = adapter
+        productsRecyclerView.setPager(this)
 
-        endless = Endless.applyTo(productsRecyclerView, progressBar)
-        endless!!.setAdapter(adapter)
-        endless!!.setLoadMoreListener(object : Endless.LoadMoreListener {
-            override fun onLoadMore(page: Int) {
-                presenter.loadMore()
-            }
-        })
+        if (adapter.itemCount == 0) {
+            swipeRefreshView.isRefreshing = true
+            presenter.loadMore()
+        } else {
+            setItemCount()
+            productsRecyclerView.scrollToPosition(selectedPosition)
+        }
+    }
 
-        searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                addAll = false
-                s?.let { if (s.length > 2) presenter.loadMore() else productsRecyclerView.adapter = null }
-            }
+    private fun setItemCount() {
+        countTextView.text = "${adapter.itemCount} out of ${response!!.pagination!!.totalHits}"
+    }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
+    override fun loadNextPage() {
+        if (!clear) {
+            loading = true
+            presenter.loadMore()
+        }
+    }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        })
+    override fun shouldLoad(): Boolean {
+        return !loading && response!!.pagination!!.totalPages != presenter.page
     }
 
     override fun setResponse(response: ProductListResponse) {
-        response.products?.let {
-            endless!!.loadMoreComplete()
-            adapter!!.loadData(response.products, addAll)
-            endless!!.isLoadMoreAvailable = response.pagination!!.totalPages != presenter.page
+        loading = false
+        swipeRefreshView.isRefreshing = false
+        this.response = response
 
-            Timber.e("isLoadMoreAvailable : ${endless!!.isLoadMoreAvailable}")
+        if (clear) {
+            adapter.loadData(null)
         }
 
-        addAll = true
+        response.products?.let {
+            adapter.loadData(response.products)
+            setItemCount()
+        }
+
+        clear = false
     }
 
     override fun getLayoutId(): Int {

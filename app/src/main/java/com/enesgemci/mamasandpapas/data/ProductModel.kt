@@ -10,7 +10,8 @@ import org.joda.time.DateTime
 /**
  * Created by enesgemci on 06/10/2017.
  */
-data class ProductModel(var productId: Int?,
+data class ProductModel(var configurableAttributes: ArrayList<ConfigurableAttributeModel>?,
+                        var productId: Int?,
                         var categoryPositions: HashMap<String?, Long>?,
                         var sku: String?,
                         var createdAt: String?,
@@ -33,7 +34,7 @@ data class ProductModel(var productId: Int?,
                         var description: String?,
                         var userManual: Any?,
                         var price: Double?,
-                        var specialPrice: Long = 0,
+                        var specialPrice: Double = 0.0,
                         @JsonAdapter(DateTimeTypeAdapter::class) var specialFromDate: DateTime?,
                         @JsonAdapter(DateTimeTypeAdapter::class) var specialToDate: DateTime?,
                         @JsonAdapter(DateTimeTypeAdapter::class) var newsFromDate: DateTime?,
@@ -57,7 +58,7 @@ data class ProductModel(var productId: Int?,
                         var gender: String?,
                         var developmentStage: String?,
                         var furnitureOnly: Int?,
-                        var sizesInStock: List<String>?,
+                        var sizesInStock: ArrayList<String>?,
                         var personalisable: Int?,
                         var parentFacing: String?,
                         var lieFlatSeat: Int?,
@@ -78,7 +79,7 @@ data class ProductModel(var productId: Int?,
                         var categoryIds: List<Int>?,
                         var categories: List<String>?,
                         var media: List<MediaModel?>?,
-                        var minPrice: Int?,
+                        var minPrice: Double?,
                         var stock: StockModel?,
                         var isInStock: Boolean = false,
                         var isInHomeDeliveryStock: Boolean = false,
@@ -103,9 +104,10 @@ data class ProductModel(var productId: Int?,
                         var sizesInClickAndCollectStock: List<String?>?,
                         var visibleSku: String?,
                         var stats: StatsModel?,
-                        var badges: MutableMap<String?, Long>?) : JsonData(), Parcelable {
+                        var badges: MutableMap<String?, Any>?) : JsonData(), Parcelable {
 
     constructor(source: Parcel) : this(
+            ArrayList<ConfigurableAttributeModel>().apply { source.readList(this, ConfigurableAttributeModel::class.java.classLoader) },
             source.readValue(Int::class.java.classLoader) as Int?,
             source.readSerializable() as HashMap<String?, Long>?,
             source.readString(),
@@ -129,7 +131,7 @@ data class ProductModel(var productId: Int?,
             source.readString(),
             source.readValue(Any::class.java.classLoader) as Any,
             source.readValue(Double::class.java.classLoader) as Double?,
-            source.readLong(),
+            source.readDouble(),
             source.readSerializable() as DateTime?,
             source.readSerializable() as DateTime?,
             source.readSerializable() as DateTime?,
@@ -174,7 +176,7 @@ data class ProductModel(var productId: Int?,
             ArrayList<Int>().apply { source.readList(this, Int::class.java.classLoader) },
             source.createStringArrayList(),
             source.createTypedArrayList(MediaModel.CREATOR),
-            source.readValue(Int::class.java.classLoader) as Int?,
+            source.readValue(Double::class.java.classLoader) as Double?,
             source.readParcelable<StockModel>(StockModel::class.java.classLoader),
             1 == source.readInt(),
             1 == source.readInt(),
@@ -199,12 +201,13 @@ data class ProductModel(var productId: Int?,
             ArrayList<String?>().apply { source.readList(this, String::class.java.classLoader) },
             source.readString(),
             source.readParcelable<StatsModel>(StatsModel::class.java.classLoader),
-            source.readSerializable() as MutableMap<String?, Long>
+            source.readSerializable() as MutableMap<String?, Any>
     )
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeList(configurableAttributes)
         writeValue(productId)
         writeSerializable(categoryPositions)
         writeString(sku)
@@ -228,7 +231,7 @@ data class ProductModel(var productId: Int?,
         writeString(description)
         writeValue(userManual)
         writeValue(price)
-        writeLong(specialPrice)
+        writeDouble(specialPrice)
         writeSerializable(specialFromDate)
         writeSerializable(specialToDate)
         writeSerializable(newsFromDate)
@@ -302,7 +305,8 @@ data class ProductModel(var productId: Int?,
     }
 
     companion object {
-        @JvmField val CREATOR: Parcelable.Creator<ProductModel> = object : Parcelable.Creator<ProductModel> {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ProductModel> = object : Parcelable.Creator<ProductModel> {
             override fun createFromParcel(source: Parcel): ProductModel = ProductModel(source)
             override fun newArray(size: Int): Array<ProductModel?> = arrayOfNulls(size)
         }

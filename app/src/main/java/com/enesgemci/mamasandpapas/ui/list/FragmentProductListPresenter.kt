@@ -2,6 +2,7 @@ package com.enesgemci.mamasandpapas.ui.list
 
 import com.enesgemci.mamasandpapas.base.mvp.BaseMvpPresenter
 import com.enesgemci.mamasandpapas.data.ProductListResponse
+import com.enesgemci.mamasandpapas.data.ProductModel
 import com.enesgemci.mamasandpapas.network.MRequestGenerator
 import com.enesgemci.mamasandpapas.util.fragment.Page
 import com.squareup.otto.Subscribe
@@ -18,6 +19,7 @@ internal class FragmentProductListPresenter @Inject constructor() : BaseMvpPrese
     lateinit var requestGenerator: MRequestGenerator
 
     var page = 0
+    private var hitsPerPage = 10
 
     @Subscribe
     fun onResponse(response: ProductListResponse) {
@@ -27,11 +29,11 @@ internal class FragmentProductListPresenter @Inject constructor() : BaseMvpPrese
         }
     }
 
-    fun onItemClicked(position: Int) {
-        view.showPage(Page.PAGE_PRODUCT_DETAIL, response!!.products!![position])
+    fun onItemClicked(product: ProductModel) {
+        view.showPage(Page.PAGE_PRODUCT_DETAIL, product)
     }
 
     fun loadMore() {
-        view.sendRequest(requestGenerator.getProductListRequest(view.searchString, page = ++page).setBehind(true))
+        view.sendRequest(requestGenerator.getProductListRequest(page = page++, hitsPerPage = hitsPerPage).setBehind(true))
     }
 }

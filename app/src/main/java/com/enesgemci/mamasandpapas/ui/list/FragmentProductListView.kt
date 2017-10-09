@@ -8,7 +8,5 @@ import com.enesgemci.mamasandpapas.data.ProductListResponse
  */
 internal interface FragmentProductListView : BaseMvpView {
 
-    val searchString: String
-
     fun setResponse(response: ProductListResponse)
 }

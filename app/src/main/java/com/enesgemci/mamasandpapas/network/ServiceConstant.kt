@@ -14,5 +14,6 @@ import android.support.annotation.Keep
 @Keep
 enum class ServiceConstant {
 
-    ProductList
+    ProductList,
+    ProductDetail
 }

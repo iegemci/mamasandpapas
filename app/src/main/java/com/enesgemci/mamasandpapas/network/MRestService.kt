@@ -7,8 +7,10 @@
 package com.enesgemci.mamasandpapas.network
 
 import com.enesgemci.mamasandpapas.data.ProductListResponse
+import com.enesgemci.mamasandpapas.data.ProductModel
 import io.reactivex.Observable
 import retrofit2.Response
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -20,4 +22,7 @@ internal interface MRestService {
 
     @POST("search/full/")
     fun getProductListResponse(@Query("searchString") searchString: String, @Query("page") page: Int, @Query("hitsPerPage") hitsPerPage: Int): Observable<Response<ProductListResponse>>
+
+    @GET("product/findbyslug/")
+    fun getProductDetailResponse(@Query("slug") slug: String): Observable<Response<ProductModel>>
 }
