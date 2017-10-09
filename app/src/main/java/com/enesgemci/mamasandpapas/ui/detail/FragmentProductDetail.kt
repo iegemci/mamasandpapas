@@ -57,6 +57,9 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
     override var products: ArrayList<ProductModel> = ArrayList()
     private var selectedSize: ConfigurableAttributeOptionModel? = null
 
+    private var currentQuantity: Int = 1
+        get() = quantityTv.text.toString().toInt()
+
     private var maxQuantity: Int = 0
         set(value) {
             field = value
@@ -64,8 +67,7 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
                 fab.enabled(false)
             }
 
-            var currentQUantity = quantityTv.text.toString().toInt()
-            adapter?.disabledSizes(sizeQuantities.filterValues { it < currentQUantity }.keys)
+            adapter?.disabledSizes(sizeQuantities.filterValues { it < currentQuantity }.keys)
         }
 
     override fun createPresenter(): FragmentProductDetailPresenter {
@@ -91,25 +93,21 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
 
         fab.setOnClickListener { Snackbar.make(fab, "Product added to basket", Snackbar.LENGTH_SHORT).show() }
         decreaseTv.setOnClickListener {
-            var currentQUantity = quantityTv.text.toString().toInt()
 
-            if (currentQUantity > 1) {
-                quantityTv.text = "${currentQUantity - 1}"
+            if (currentQuantity > 1) {
+                quantityTv.text = "${currentQuantity - 1}"
             }
         }
         increaseTv.setOnClickListener {
-            var currentQUantity = quantityTv.text.toString().toInt()
-
-            if (currentQUantity <= maxQuantity) {
-                quantityTv.text = "${currentQUantity + 1}"
+            if (currentQuantity <= maxQuantity) {
+                quantityTv.text = "${currentQuantity + 1}"
             }
         }
         quantityTv.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                var currentQUantity = quantityTv.text.toString().toInt()
-                increaseTv.isEnabled = currentQUantity != maxQuantity
-                decreaseTv.isEnabled = currentQUantity > 1
+                increaseTv.isEnabled = currentQuantity != maxQuantity
+                decreaseTv.isEnabled = currentQuantity > 1
 
                 adapter?.disabledSizes(sizeQuantities.filterValues { it < s.toString().toInt() }.keys)
             }
@@ -168,8 +166,6 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
                                 }
 
                                 selectedSize?.let {
-                                    decreaseTv.isEnabled = true
-
                                     var option: ConfigurableAttributeOptionModel? = null
                                     products.forEach {
                                         it.configurableAttributes!!.find {
@@ -182,16 +178,13 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
                                     maxQuantity = pr.stock!!.maxAvailableQty
 
                                     fab.enabled(it.isInStock)
-                                    increaseTv.isEnabled = it.isInStock && quantityTv.text.toString().toInt() < maxQuantity
-
-                                    it.simpleProductSkus?.let {
-                                        if (it.isNotEmpty()) {
-//                                            presenter.updateProduct(it.first())
-                                        }
-                                    }
-                                }
+                                    increaseTv.isEnabled = it.isInStock && currentQuantity < maxQuantity
+                                    decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
+                                } ?: fab.enabled(false)
                             } else {
                                 fab.enabled(true)
+                                increaseTv.isEnabled = currentQuantity < maxQuantity
+                                decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
                             }
                         } else {
                             fab.enabled(false)

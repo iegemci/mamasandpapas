@@ -14,10 +14,6 @@ internal class FragmentProductDetailPresenter @Inject constructor() : BaseMvpPre
     @Inject
     lateinit var requestGenerator: MRequestGenerator
 
-    fun updateProduct(slug: String) {
-        view.sendRequest(requestGenerator.getProductDetailRequest(slug))
-    }
-
     @Subscribe
     fun onResponse(product: ProductModel) {
         if (isViewAttached) {
