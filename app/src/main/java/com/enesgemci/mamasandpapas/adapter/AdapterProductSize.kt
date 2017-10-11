@@ -16,11 +16,12 @@ import com.enesgemci.mamasandpapas.util.MDrawable
 /**
  * Created by enesgemci on 09/10/2017.
  */
-class AdapterProductSize(private var context: Context, var selectedSize: ConfigurableAttributeOptionModel?, var sizes: List<String>, var onClickListener: View.OnClickListener) : RecyclerView.Adapter<AdapterProductSize.ViewHolder>() {
+class AdapterProductSize(private var context: Context, var selectedSize: ConfigurableAttributeOptionModel?, var sizes: List<String>, private var disabledList: ArrayList<String> = ArrayList(), var onClickListener: View.OnClickListener) : RecyclerView.Adapter<AdapterProductSize.ViewHolder>() {
 
     private var layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private var clickedPosition: Int? = -1
-    private var disabledList: List<String>? = null
+    private var disabledListByQuantity: List<String>? = null
+    private var itemSelected = false
 
     private val active = MDrawable.Builder(context)
             .setBackgroundColorResId(R.color.black)
@@ -61,10 +62,12 @@ class AdapterProductSize(private var context: Context, var selectedSize: Configu
             sizeTv.text = size
             root.setOnClickListener {
                 if (disabledList == null || !disabledList!!.contains(size)) {
-                    clickedPosition = if (root.background == active) {
-                        -1
+                    if (root.background == active) {
+                        clickedPosition = -1
+                        itemSelected = false
                     } else {
-                        position
+                        clickedPosition = position
+                        itemSelected = true
                     }
 
                     root.tag = clickedPosition
@@ -85,7 +88,7 @@ class AdapterProductSize(private var context: Context, var selectedSize: Configu
                 }
 
                 if (clickedPosition == position) {
-                    if (root.background == active) {
+                    if (!itemSelected && root.background == active) {
                         sizeTv.setTextColor(Color.BLACK)
                         root.background = passive
                     } else {
@@ -101,8 +104,10 @@ class AdapterProductSize(private var context: Context, var selectedSize: Configu
     }
 
     fun disabledSizes(keys: Set<String>) {
-        if (disabledList != keys.toList()) {
-            this.disabledList = keys.toList()
+        if (disabledListByQuantity != keys.toList()) {
+            disabledListByQuantity?.let { disabledList.removeAll(disabledListByQuantity!!) }
+            this.disabledListByQuantity = keys.toList()
+            disabledListByQuantity?.let { disabledList.addAll(disabledListByQuantity!!) }
             notifyDataSetChanged()
         }
     }

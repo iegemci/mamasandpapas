@@ -13,3 +13,7 @@ fun Double.toMoney(maxFraction: Int = 2, locale: Locale = Locale.US): String {
 
     return formatter.format(this)
 }
+
+fun Double?.toMoney(maxFraction: Int = 2, locale: Locale = Locale.US): String {
+    return this?.let { this.toMoney(maxFraction, locale) } ?: 0.0.toMoney(maxFraction, locale)
+}

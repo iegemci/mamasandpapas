@@ -47,7 +47,7 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
         set(value) {
             field = value
             presenter.onFragmentStarted(product)
-            setData()
+            setUI()
             maxQuantity = value?.stock?.maxAvailableQty ?: 0
         }
 
@@ -59,6 +59,19 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
 
     private var currentQuantity: Int = 1
         get() = quantityTv.text.toString().toInt()
+
+    private val disabledList: ArrayList<String>?
+        get() {
+            var list = product!!.configurableAttributes?.first { it.code == "sizeCode" }?.options?.filterNot { it.isInStock }?.map { it.label }
+            return list?.let { ArrayList(list) } ?: ArrayList()
+        }
+
+    private val sortedList: List<String>
+        get() {
+            var list = ArrayList(product!!.sizesInStock!!.filter { it != "N/A" })
+            disabledList?.let { list.addAll(disabledList!!) }
+            return list.sortedWith(compareBy({ it }))
+        }
 
     private var maxQuantity: Int = 0
         set(value) {
@@ -120,7 +133,7 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
         })
     }
 
-    private fun setData() {
+    private fun setUI() {
         viewPager.adapter = MPagerAdapter()
 
         if (viewPager.adapter.count > 1) {
@@ -138,7 +151,7 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
         }
 
         nameTv.text = product!!.name ?: ""
-        priceTv.text = "AED " + product?.price!!.toMoney()
+        priceTv.text = "AED " + product?.price.toMoney()
 
         if (product!!.sizesInStock!!.size == 1 && product!!.sizesInStock!![0] == "N/A") {
             sizeLabel.hide()
@@ -147,63 +160,68 @@ internal class FragmentProductDetail : BaseFragment<FragmentProductDetailView, F
         } else {
             sizeLabel.show()
             sizeList.show()
-            var list = product!!.sizesInStock!!.filter { it != "N/A" }.sortedWith(compareBy({ it }))
+
             adapter = AdapterProductSize(
                     context,
                     selectedSize,
-                    list,
-                    View.OnClickListener { v ->
-                        var position = v.tag as Int
-
-                        if (position >= 0) {
-                            if (product!!.configurableAttributes != null) {
-                                product!!.configurableAttributes?.forEach {
-                                    selectedSize = it.options!!.firstOrNull { it.label == list[position] }
-
-                                    if (selectedSize != null) {
-                                        return@forEach
-                                    }
-                                }
-
-                                selectedSize?.let {
-                                    var option: ConfigurableAttributeOptionModel? = null
-                                    products.forEach {
-                                        it.configurableAttributes!!.find {
-                                            option = it.options!!.first { it.optionId == selectedSize!!.optionId }
-                                            return@forEach
-                                        }
-                                    }
-
-                                    var pr = products.first { it.sku == option!!.simpleProductSkus.first() }
-                                    maxQuantity = pr.stock!!.maxAvailableQty
-
-                                    fab.enabled(it.isInStock)
-                                    increaseTv.isEnabled = it.isInStock && currentQuantity < maxQuantity
-                                    decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
-                                } ?: fab.enabled(false)
-                            } else {
-                                fab.enabled(true)
-                                increaseTv.isEnabled = currentQuantity < maxQuantity
-                                decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
-                            }
-                        } else {
-                            fab.enabled(false)
-                            selectedSize = null
-                            decreaseTv.isEnabled = false
-                        }
-                    })
+                    sortedList,
+                    disabledList ?: ArrayList(),
+                    onSizeClickListener)
             sizeList.adapter = adapter
             sizeList.setHasFixedSize(false)
 
-            if (list.size > 3) {
-                sizeList.minimumHeight = if (list.size % 3 == 0) {
-                    (list.size / 3 * 50.dpToPx(context)) + (2 * 10.dpToPx(context))
+            // UI related
+            if (sortedList.size > 3) {
+                sizeList.minimumHeight = if (sortedList.size % 3 == 0) {
+                    (sortedList.size / 3 * 50.dpToPx(context)) + (2 * 10.dpToPx(context))
                 } else {
-                    ((((list.size.toDouble() / 3.0) + 1) * 50.dpToPx(context)) + 10.dpToPx(context)).toInt()
+                    ((((sortedList.size.toDouble() / 3.0) + 1) * 50.dpToPx(context)) + 10.dpToPx(context)).toInt()
                 }
             }
         }
     }
+
+    private val onSizeClickListener
+        get() = View.OnClickListener { v ->
+            var position = v.tag as Int
+
+            if (position >= 0) {
+                if (product!!.configurableAttributes != null) {
+                    product!!.configurableAttributes?.forEach {
+                        selectedSize = it.options!!.firstOrNull { it.label == sortedList[position] }
+
+                        if (selectedSize != null) {
+                            return@forEach
+                        }
+                    }
+
+                    selectedSize?.let {
+                        var option: ConfigurableAttributeOptionModel? = null
+                        products.forEach {
+                            it.configurableAttributes!!.find {
+                                option = it.options!!.first { it.optionId == selectedSize!!.optionId }
+                                return@forEach
+                            }
+                        }
+
+                        var pr = products.first { it.sku == option!!.simpleProductSkus.first() }
+                        maxQuantity = pr.stock!!.maxAvailableQty
+
+                        fab.enabled(it.isInStock)
+                        increaseTv.isEnabled = it.isInStock && currentQuantity < maxQuantity
+                        decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
+                    } ?: fab.enabled(false)
+                } else {
+                    fab.enabled(true)
+                    increaseTv.isEnabled = currentQuantity < maxQuantity
+                    decreaseTv.isEnabled = currentQuantity in 2..maxQuantity
+                }
+            } else {
+                fab.enabled(false)
+                selectedSize = null
+                decreaseTv.isEnabled = false
+            }
+        }
 
     override fun getPage(): Page {
         return Page.PAGE_PRODUCT_DETAIL
