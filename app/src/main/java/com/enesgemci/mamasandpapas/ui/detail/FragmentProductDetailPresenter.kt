@@ -1,6 +1,7 @@
 package com.enesgemci.mamasandpapas.ui.detail
 
 import com.enesgemci.mamasandpapas.base.mvp.BaseMvpPresenter
+import com.enesgemci.mamasandpapas.data.ConfigurableAttributeOptionModel
 import com.enesgemci.mamasandpapas.data.ProductModel
 import com.enesgemci.mamasandpapas.network.MRequestGenerator
 import com.squareup.otto.Subscribe
@@ -37,6 +38,37 @@ internal class FragmentProductDetailPresenter @Inject constructor() : BaseMvpPre
                     view.sendRequest(requestGenerator.getProductDetailRequest(it))
                 }
             }
+        }
+    }
+
+    fun onSizeSelected(position: Int) {
+        if (position >= 0) {
+            if (view.product!!.configurableAttributes != null) {
+                view.product!!.configurableAttributes?.forEach {
+                    view.selectedSize = it.options?.firstOrNull { it.label == view.sortedList[position] }
+
+                    if (view.selectedSize != null) {
+                        return@forEach
+                    }
+                }
+
+                view.selectedSize?.let {
+                    var option: ConfigurableAttributeOptionModel? = null
+                    view.products.forEach {
+                        it.configurableAttributes?.filter { it.code == "sizeCode" }?.find {
+                            option = it.options?.first { it.optionId == view.selectedSize?.optionId }
+                            return@forEach
+                        }
+                    }
+
+                    var pr = view.products.first { it.sku == option!!.simpleProductSkus.first() }
+                    view.maxQuantity = pr.stock!!.maxAvailableQty
+                }
+            } else {
+                view.addToBasketEnabled(true)
+            }
+        } else {
+            view.selectedSize = null
         }
     }
 }

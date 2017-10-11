@@ -35,7 +35,7 @@ class AdapterProductSize(private var context: Context, var selectedSize: Configu
             .setRadius(5f.dpToPx(context))
             .build()
     private val disabled = MDrawable.Builder(context)
-            .setBackgroundColorResId(R.color.text_color_light)
+            .setBackgroundColorResId(R.color.gray_2)
             .setPressedColorResId(R.color.transparent)
             .addType(MDrawable.Type.BACKGROUND)
             .setRadius(5f.dpToPx(context))
